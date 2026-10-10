@@ -1,7 +1,7 @@
 import json, os, subprocess, requests
 
 WEBHOOK = os.environ["DISCORD_WEBHOOK"]
-CREATORS = ["khaby.lame", "charlidamelio"]  # sans le @
+CREATORS = ["khaby.lame", "djik0s"]  # sans le @
 STATE = "state.json"
 
 state = json.load(open(STATE)) if os.path.exists(STATE) else {}
