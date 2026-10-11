@@ -18,6 +18,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install yt-dlp requests
+      - run: sudo apt-get install -y ffmpeg
       - run: python bot.py
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -26,5 +27,8 @@ jobs:
           git config user.email bot@users.noreply.github.com
           git add state.json
           git commit -m "update" || exit 0
-          git pull --rebase
-          git push
+          git pull --rebase -X theirs || (git rebase --abort; git fetch origin; git checkout origin/main -- state.json 2>/dev/null; git checkout -B main origin/main; python - <<'EOF'
+          print("conflit ignore")
+          EOF
+          exit 0)
+          git push || true
