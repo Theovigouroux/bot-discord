@@ -1,20 +1,30 @@
-import json, os, subprocess, requests
+import json, os, subprocess, time, requests
 
-WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
-CREATORS = ["djik0s","kurozen94","ice_93zo"]  # sans le @
+WEBHOOK = os.environ["DISCORD_WEBHOOK"]
+CREATORS = ["djik0s", "kurozen94", "ice_93zo"]
 STATE = "state.json"
 
-print("Webhook present :", bool(WEBHOOK), "| longueur :", len(WEBHOOK))
+# TEST : supprime ces 2 lignes quand Discord marche
+r = requests.post(WEBHOOK, json={"content": "Test du bot OK"})
+print("Test Discord ->", r.status_code, r.text[:100])
 
 state = json.load(open(STATE)) if os.path.exists(STATE) else {}
 
+def get_ids(c):
+    for t in range(3):
+        p = subprocess.run(
+            ["yt-dlp", "--flat-playlist", "--playlist-end", "5", "-j",
+             f"https://www.tiktok.com/@{c}"],
+            capture_output=True, text=True)
+        ids = [json.loads(l)["id"] for l in p.stdout.splitlines() if l.startswith("{")]
+        if ids:
+            return ids
+        print(c, "essai", t + 1, "echec :", p.stderr[-200:])
+        time.sleep(10)
+    return []
+
 for c in CREATORS:
-    out = subprocess.run(
-        ["yt-dlp", "--flat-playlist", "--playlist-end", "5", "-j",
-         f"https://www.tiktok.com/@{c}"],
-        capture_output=True, text=True).stdout
-    vids = [json.loads(l) for l in out.splitlines() if l]
-    ids = [v["id"] for v in vids]
+    ids = get_ids(c)
     print(c, len(ids), "videos trouvees")
     if not ids:
         continue
@@ -23,7 +33,7 @@ for c in CREATORS:
             if i not in state[c]:
                 r = requests.post(WEBHOOK, json={
                     "content": f"Nouveau TikTok de @{c} : https://www.tiktok.com/@{c}/video/{i}"})
-                print("Envoi Discord", i, "->", r.status_code, r.text[:100])
+                print("Envoi Discord", i, "->", r.status_code)
     state[c] = ids + [i for i in state.get(c, []) if i not in ids][:50]
 
 json.dump(state, open(STATE, "w"))
