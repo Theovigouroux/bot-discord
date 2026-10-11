@@ -1,7 +1,7 @@
 import json, os, subprocess, requests
 
 WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
-CREATORS = ["djik0s"]  # sans le @
+CREATORS = ["djik0s","kurozen94","ice_93zo"]  # sans le @
 STATE = "state.json"
 
 print("Webhook present :", bool(WEBHOOK), "| longueur :", len(WEBHOOK))
