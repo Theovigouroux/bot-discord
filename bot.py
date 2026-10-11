@@ -33,16 +33,23 @@ def cleanup():
 
 def download(url):
     cleanup()
-    subprocess.run(["yt-dlp", "-o", "video_raw.%(ext)s",
-                    "--merge-output-format", "mp4", url],
-                   capture_output=True, text=True)
-    files = glob.glob("video_raw.*")
-    if not files:
+    ok = False
+    for t in range(3):
+        p = subprocess.run(
+            ["yt-dlp", "-f", "b[ext=mp4]/b", "-o", "video_raw.%(ext)s", url],
+            capture_output=True, text=True)
+        if glob.glob("video_raw.*"):
+            ok = True
+            break
+        err = [l for l in p.stderr.splitlines() if "ERROR" in l]
+        print("download echec", t + 1, err[0][:200] if err else p.stderr[:200])
+        time.sleep(3)
+    if not ok:
         return None
-    f = files[0]
+    f = glob.glob("video_raw.*")[0]
+    print("taille video :", os.path.getsize(f) // 1024, "Ko")
     if os.path.getsize(f) <= MAX_BYTES:
         return f
-    # trop lourde : compression
     subprocess.run(["ffmpeg", "-y", "-i", f, "-vf", "scale=-2:540",
                     "-c:v", "libx264", "-crf", "32", "-preset", "veryfast",
                     "-c:a", "aac", "-b:a", "64k", "video_small.mp4"],
@@ -50,6 +57,7 @@ def download(url):
     if os.path.exists("video_small.mp4") and os.path.getsize("video_small.mp4") <= MAX_BYTES:
         return "video_small.mp4"
     return None
+
 
 def send(c, i):
     url = f"https://www.tiktok.com/@{c}/video/{i}"
