@@ -4,14 +4,10 @@ WEBHOOK = os.environ["DISCORD_WEBHOOK"]
 CREATORS = ["djik0s", "kurozen94", "ice_93zo", "hms.v7", "kheph35", "laquika898", "100sans1000", "zeyox78.2"]
 STATE = "state.json"
 
-# TEST : supprime ces 2 lignes quand Discord marche
-r = requests.post(WEBHOOK, json={"content": "Test du bot OK"})
-print("Test Discord ->", r.status_code, r.text[:100])
-
 state = json.load(open(STATE)) if os.path.exists(STATE) else {}
 
 def get_ids(c):
-    for t in range(3):
+    for t in range(2):
         p = subprocess.run(
             ["yt-dlp", "--flat-playlist", "--playlist-end", "5", "-j",
              f"https://www.tiktok.com/@{c}"],
@@ -20,7 +16,7 @@ def get_ids(c):
         if ids:
             return ids
         print(c, "essai", t + 1, "echec :", p.stderr[-200:])
-        time.sleep(10)
+        time.sleep(5)
     return []
 
 for c in CREATORS:
