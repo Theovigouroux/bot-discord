@@ -1,7 +1,7 @@
 import json, os, subprocess, time, requests
 
 WEBHOOK = os.environ["DISCORD_WEBHOOK"]
-CREATORS = ["djik0s", "kurozen94", "ice_93zo"]
+CREATORS = ["djik0s", "kurozen94", "ice_93zo", "hms.v7", "kheph35", "laquika898", "100sans1000", "zeyox78.2"]
 STATE = "state.json"
 
 # TEST : supprime ces 2 lignes quand Discord marche
