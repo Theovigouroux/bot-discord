@@ -13,7 +13,7 @@ MAX_BYTES = int(9.5 * 1024 * 1024)  # limite Discord (serveur non boosté)
 state = json.load(open(STATE)) if os.path.exists(STATE) else {}
 
 def get_ids(c):
-    for t in range(2):
+    for t in range(3):
         p = subprocess.run(
             ["yt-dlp", "--flat-playlist", "--playlist-end", "5", "-j",
              f"https://www.tiktok.com/@{c}"],
@@ -21,9 +21,11 @@ def get_ids(c):
         ids = [json.loads(l)["id"] for l in p.stdout.splitlines() if l.startswith("{")]
         if ids:
             return ids
-        print(c, "essai", t + 1, "echec :", p.stderr[-150:])
-        time.sleep(3)
+        err = [l for l in p.stderr.splitlines() if "ERROR" in l]
+        print(c, "essai", t + 1, "echec :", err[0][:200] if err else p.stderr[:200])
+        time.sleep(4)
     return []
+
 
 def cleanup():
     for f in glob.glob("video_*"):
